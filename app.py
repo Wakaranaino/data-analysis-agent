@@ -244,17 +244,38 @@ def run_agent(prompt):
 
     return code, execution_output, status, interpretation, img
 
-demo = gr.Interface(
-    fn=run_agent,
-    inputs=gr.Textbox(label="Prompt", lines=2),
-    outputs=[
-    gr.Code(label="Generated Python Code", language="python"),
-    gr.Textbox(label="Execution Output", lines=12),
-    gr.Textbox(label="Run Status"),
-    gr.Textbox(label="Interpretation", lines=6),
-    gr.Image(label="Plot Output")
-    ],
-    title="AI Data Analysis Agent"
-)
+with gr.Blocks() as demo:
+    gr.Markdown("# AI Data Analysis Agent")
+
+    # Prompt (top)
+    with gr.Row():
+        prompt = gr.Textbox(label="Prompt", lines=2)
+        run_button = gr.Button("Submit")
+
+    # Main layout
+    with gr.Row():
+
+        # LEFT SIDE (technical)
+        with gr.Column():
+            code_output = gr.Code(label="Generated Python Code", language="python")
+            execution_output = gr.Textbox(label="Execution Output", lines=10)
+            run_status = gr.Textbox(label="Run Status")
+
+        # RIGHT SIDE (user-focused)
+        with gr.Column():
+            interpretation = gr.Textbox(label="Interpretation", lines=8)
+            plot_output = gr.Image(label="Plot Output")
+
+    run_button.click(
+        fn=run_agent,
+        inputs=prompt,
+        outputs=[
+            code_output,
+            execution_output,
+            run_status,
+            interpretation,
+            plot_output
+        ]
+    )
 
 demo.launch() 
