@@ -3,6 +3,8 @@ import requests
 import os
 import io
 import contextlib
+import matplotlib.pyplot as plt
+from PIL import Image
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
@@ -30,13 +32,15 @@ You are a Python code generator.
 
 STRICT RULES:
 - Return ONLY executable Python code
-- Do NOT use markdown fences
-- Do NOT include labels like Test 1
-- Do NOT include explanations or notes
+- Do NOT include markdown fences
+- Do NOT include explanations, notes, or labels
 - Do NOT include any text before or after the code
-- Print important results clearly
+- Print numerical/text results clearly
+- For plots, use matplotlib
+- It is OK to call plt.show()
 
-Use pandas, matplotlib, yfinance if needed.
+Use only these libraries when needed:
+pandas, matplotlib, yfinance
 """
 
     data = {
@@ -52,34 +56,31 @@ Use pandas, matplotlib, yfinance if needed.
 
     return result["choices"][0]["message"]["content"]
 
-import matplotlib.pyplot as plt
-from PIL import Image
-
 def run_agent(prompt):
-    code = generate_code(prompt)
-    output_buffer = io.StringIO()
+    raw_code = generate_code(prompt)
+    code = extract_python_code(raw_code)
 
-    img = None  # store plot if exists
+    output_buffer = io.StringIO()
+    img = None
 
     try:
         with contextlib.redirect_stdout(output_buffer):
             exec(code, {})
 
-        # capture printed output
         execution_output = output_buffer.getvalue()
         if not execution_output.strip():
             execution_output = "Code executed successfully, but nothing was printed."
 
-        # capture matplotlib figure if exists
         if plt.get_fignums():
             buf = io.BytesIO()
-            plt.savefig(buf, format="png")
+            plt.savefig(buf, format="png", bbox_inches="tight")
             buf.seek(0)
             img = Image.open(buf)
-            plt.close('all')
+            plt.close("all")
 
     except Exception as e:
         execution_output = f"Execution error: {str(e)}"
+        plt.close("all")
 
     return code, execution_output, img
 
@@ -88,7 +89,7 @@ demo = gr.Interface(
     inputs=gr.Textbox(label="Prompt", lines=2),
     outputs=[
         gr.Code(label="Generated Python Code", language="python"),
-        gr.Textbox(label="Execution Output", lines=10),
+        gr.Textbox(label="Execution Output", lines=12),
         gr.Image(label="Plot Output")
     ],
     title="AI Data Analysis Agent"
