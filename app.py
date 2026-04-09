@@ -6,6 +6,17 @@ import contextlib
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
+def extract_python_code(raw_text):
+    raw_text = raw_text.strip()
+
+    if "```python" in raw_text:
+        return raw_text.split("```python", 1)[1].split("```", 1)[0].strip()
+
+    if "```" in raw_text:
+        return raw_text.split("```", 1)[1].split("```", 1)[0].strip()
+
+    return raw_text
+
 def generate_code(prompt):
     url = "https://api.groq.com/openai/v1/chat/completions"
 
@@ -18,10 +29,11 @@ def generate_code(prompt):
 You are a Python code generator.
 
 STRICT RULES:
-- Output ONLY raw Python code
-- No explanations
-- No markdown
-- No text before or after the code
+- Return ONLY executable Python code
+- Do NOT use markdown fences
+- Do NOT include labels like Test 1
+- Do NOT include explanations or notes
+- Do NOT include any text before or after the code
 - Print important results clearly
 
 Use pandas, matplotlib, yfinance if needed.
@@ -41,7 +53,8 @@ Use pandas, matplotlib, yfinance if needed.
     return result["choices"][0]["message"]["content"]
 
 def run_agent(prompt):
-    code = generate_code(prompt)
+    raw_code = generate_code(prompt)
+    code = extract_python_code(raw_code)
     output_buffer = io.StringIO()
 
     try:
