@@ -1,10 +1,12 @@
 import gradio as gr
 import requests
 import os
+import io
+import contextlib
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-def call_llm(prompt):
+def generate_code(prompt):
     url = "https://api.groq.com/openai/v1/chat/completions"
 
     headers = {
@@ -19,12 +21,8 @@ STRICT RULES:
 - Output ONLY raw Python code
 - No explanations
 - No markdown
-- No text
-- No comments outside code
-- No instructions
-- Do NOT say anything before or after the code
-
-If you break these rules, the output is invalid.
+- No text before or after the code
+- Print important results clearly
 
 Use pandas, matplotlib, yfinance if needed.
 """
@@ -42,10 +40,29 @@ Use pandas, matplotlib, yfinance if needed.
 
     return result["choices"][0]["message"]["content"]
 
+def run_agent(prompt):
+    code = generate_code(prompt)
+    output_buffer = io.StringIO()
+
+    try:
+        with contextlib.redirect_stdout(output_buffer):
+            exec(code, {})
+        execution_output = output_buffer.getvalue()
+        if not execution_output.strip():
+            execution_output = "Code executed successfully, but nothing was printed."
+    except Exception as e:
+        execution_output = f"Execution error: {str(e)}"
+
+    return code, execution_output
+
 demo = gr.Interface(
-    fn=call_llm,
-    inputs="text",
-    outputs="text"
+    fn=run_agent,
+    inputs=gr.Textbox(label="Prompt", lines=2),
+    outputs=[
+        gr.Code(label="Generated Python Code", language="python"),
+        gr.Textbox(label="Execution Output", lines=12)
+    ],
+    title="AI Data Analysis Agent"
 )
 
 demo.launch()
