@@ -249,43 +249,45 @@ with gr.Blocks() as demo:
 
     # Row 1: Prompt + Interpretation
     with gr.Row():
-        prompt = gr.Textbox(
-            label="Prompt",
-            lines=3,
-            placeholder="Enter your request here..."
-        )
-        interpretation = gr.Textbox(
-            label="Interpretation",
-            lines=8
-        )
+        with gr.Column():
+            prompt = gr.Textbox(
+                label="Prompt",
+                lines=3,
+                placeholder="Enter your request here..."
+            )
+            submit_btn = gr.Button("Submit", variant="primary")
 
-    submit_btn = gr.Button("Submit", variant="primary")
+        with gr.Column():
+            interpretation = gr.Textbox(
+                label="Interpretation",
+                lines=8
+            )
 
     # Row 2: Plot + Execution Output
     with gr.Row():
-        plot_output = gr.Image(
-            label="Plot Output",
-            height=420
-        )
-        execution_output = gr.Textbox(
-            label="Execution Output",
-            lines=14
-        )
+        with gr.Column():
+            plot_output = gr.Image(
+                label="Plot Output",
+                height=420
+            )
 
-    # Row 3: Generated Code
+        with gr.Column():
+            execution_output = gr.Textbox(
+                label="Execution Output",
+                lines=14
+            )
+
+    # Row 3: Generated Python Code
     code_output = gr.Code(
         label="Generated Python Code",
         language="python",
         lines=12
     )
 
-    # Row 4: Right-aligned Run Status
-    with gr.Row():
-        gr.Markdown("")  # spacer (left empty)
-        run_status = gr.Textbox(
+    # Row 4: Run Status
+    run_status = gr.Textbox(
         label="Run Status",
-        lines=1,
-        scale=1
+        lines=1
     )
 
     submit_btn.click(
