@@ -68,8 +68,10 @@ def run_agent(prompt):
             exec(code, {})
 
         execution_output = output_buffer.getvalue()
-        if not execution_output.strip():
+        if not execution_output.strip() and img is None:
             execution_output = "Code executed successfully, but nothing was printed."
+        elif not execution_output.strip():
+            execution_output = "Plot generated successfully."
 
         if plt.get_fignums():
             buf = io.BytesIO()
