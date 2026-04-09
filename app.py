@@ -247,26 +247,48 @@ def run_agent(prompt):
 with gr.Blocks() as demo:
     gr.Markdown("# AI Data Analysis Agent")
 
-    # Prompt (top)
+    # Row 1: Prompt + Interpretation
     with gr.Row():
-        prompt = gr.Textbox(label="Prompt", lines=2)
-        run_button = gr.Button("Submit")
+        prompt = gr.Textbox(
+            label="Prompt",
+            lines=3,
+            placeholder="Enter your request here..."
+        )
+        interpretation = gr.Textbox(
+            label="Interpretation",
+            lines=8
+        )
 
-    # Main layout
+    submit_btn = gr.Button("Submit", variant="primary")
+
+    # Row 2: Plot + Execution Output
     with gr.Row():
+        plot_output = gr.Image(
+            label="Plot Output",
+            height=420
+        )
+        execution_output = gr.Textbox(
+            label="Execution Output",
+            lines=14
+        )
 
-        # LEFT SIDE (technical)
-        with gr.Column():
-            code_output = gr.Code(label="Generated Python Code", language="python")
-            execution_output = gr.Textbox(label="Execution Output", lines=10)
-            run_status = gr.Textbox(label="Run Status")
+    # Row 3: Generated Code
+    code_output = gr.Code(
+        label="Generated Python Code",
+        language="python",
+        lines=12
+    )
 
-        # RIGHT SIDE (user-focused)
-        with gr.Column():
-            interpretation = gr.Textbox(label="Interpretation", lines=8)
-            plot_output = gr.Image(label="Plot Output")
+    # Row 4: Right-aligned Run Status
+    with gr.Row():
+        gr.Markdown("")  # spacer (left empty)
+        run_status = gr.Textbox(
+        label="Run Status",
+        lines=1,
+        scale=1
+    )
 
-    run_button.click(
+    submit_btn.click(
         fn=run_agent,
         inputs=prompt,
         outputs=[
@@ -278,4 +300,4 @@ with gr.Blocks() as demo:
         ]
     )
 
-demo.launch() 
+demo.launch()
