@@ -12,9 +12,22 @@ def call_llm(prompt):
         "Content-Type": "application/json"
     }
 
+    system_prompt = """
+You are a Python data analysis assistant.
+
+ONLY return Python code.
+Do NOT explain anything.
+Do NOT include markdown.
+Do NOT include text outside code.
+
+Use pandas, matplotlib, yfinance if needed.
+Print results clearly.
+"""
+
     data = {
         "model": "llama-3.1-8b-instant",
         "messages": [
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt}
         ]
     }
