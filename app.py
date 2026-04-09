@@ -46,6 +46,8 @@ STRICT RULES:
 - If a user-provided field name may be ambiguous or incorrect, inspect the available columns and use the closest valid field only when appropriate
 - When possible, write code that is resilient to minor naming differences
 - For plots, use matplotlib and call plt.show()
+- If formatting a value with f-strings (e.g. :.2f), make sure the value is a scalar, not a pandas Series
+- Convert Series results to scalar before formatting when needed (e.g. .item(), float(), or selecting one value)
 
 Use only these libraries when needed:
 pandas, matplotlib, yfinance
@@ -99,6 +101,9 @@ RULES:
 - If uncertainty remains, write code that safely checks before accessing data
 - Avoid unnecessary imports or complex logic
 - Always print results in clean human-readable format
+- If formatting a value with f-strings (e.g. :.2f), make sure the value is a scalar, not a pandas Series
+- Convert Series results to scalar before formatting when needed (e.g. .item(), float(), or selecting one value)
+- If the error mentions Series.__format__, convert the Series to a scalar before formatting
 """
 
     data = {
